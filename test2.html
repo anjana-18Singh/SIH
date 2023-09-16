@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSV Data Display</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-image: url(bgg.jpg);
+            font-size: larger;
+            background-size: cover;
+            text-align: center;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: #333;
+            color: #fff;
+            padding: 20px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 24px;
+        }
+
+        #dataDisplay {
+            font-size: 20px;
+            color: #fff;
+            margin: 20px;
+            padding: 20px;
+            background-color: #110d0d;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border : 2px solid white
+            ;
+        }
+
+        #data {
+            font-size: 18px;
+        }
+
+        button {
+            background-color: #1abc9c;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #16a085;
+        }
+        .container{
+            text-align: center;
+            color: white;
+            font-size: 2.5rem;
+            font-weight: 200px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            Welcome to the smart parking system
+        </div>
+        <h1>Vehicle Information</h1>
+    </header>
+
+    <div id="dataDisplay">
+        <p id="data">Loading data...</p>
+        <button id="nextButton">Next</button>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const dataDisplay = document.getElementById("dataDisplay");
+            const dataParagraph = document.getElementById("data");
+            const nextButton = document.getElementById("nextButton");
+
+            let currentIndex = 0;
+            let data = [];
+
+            async function fetchCSV() {
+                const response = await fetch("NumberPlate_on_2023-09-16 (1).csv");
+                const text = await response.text();
+                data = parseCSV(text);
+            }
+
+            function parseCSV(csvText) {
+                const lines = csvText.split("\n");
+                const headers = lines[0].split(",");
+                const result = [];
+
+                for (let i = 1; i < lines.length; i++) {
+                    const line = lines[i].split(",");
+                    const obj = {};
+
+                    for (let j = 0; j < headers.length; j++) {
+                        obj[headers[j]] = line[j];
+                    }
+
+                    result.push(obj);
+                }
+
+                return result;
+            }
+
+            function displayData() {
+                if (currentIndex < data.length) {
+                    const item = data[currentIndex];
+                    const displayText = `Result: ${item["Result"]}, Date: ${item["Date"]}, Time: ${item["Time"]}`;
+                    dataParagraph.textContent = displayText;
+                } else {
+                    dataParagraph.textContent = "No more data.";
+                    nextButton.disabled = true;
+                }
+            }
+
+            nextButton.addEventListener("click", function() {
+                currentIndex++;
+                displayData();
+            });
+
+            fetchCSV().then(() => {
+                displayData();
+            });
+        });
+    </script>
+</body>
+</html>
